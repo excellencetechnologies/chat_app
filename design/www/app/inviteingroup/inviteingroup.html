@@ -1,0 +1,22 @@
+<ion-view view-title="Add In Group" id="background">
+    <ion-content class="has-footer">
+    <div class="spin" ng-show="inviteInGroup.loadingSpinner"><ion-spinner icon="spiral" class="spinner-positive"></ion-spinner></div>
+        <ion-list >
+            <ion-item ng-hide="inviteInGroup.displayinviteInGroup.length > 0" class="noItem" >
+                <div class="empty" ng-hide="inviteInGroup.loadingSpinner">
+                    <div class='nothing'>'No Users!'</div>
+                </div>
+            </ion-item>
+        </ion-list>
+        <div class="list" id="chats">
+            <div class="user-container" ng-repeat="user in inviteInGroup.displayinviteInGroup track by $index">
+                <a class="item item-avatar hover">
+                    <img class="avatar" ng-src="{{user.profile_image}}">
+                    <h3>{{user.name}} <span class="fa fa-spin fa-spinner" ng-show="inviteInGroup.clickRoomSpinner == $index"></span></h3>
+                    <span class="time lastSeen">{{user.last_seen}}</span>
+                    <p class="pull-right addingroup-icon" ng-click="inviteInGroup.inviteUser(user, $index)"><i class="ion-plus-round"></i></p>
+                </a>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>
