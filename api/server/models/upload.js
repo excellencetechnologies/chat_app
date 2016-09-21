@@ -4,7 +4,6 @@ var BASE_URL = CONFIG.BASE_URL;
 var CONTAINERS_URL = BASE_URL + '/api/containers/';
 var sharp = require('sharp');
 
-
 module.exports = function (File) {
     File.getApp(function (err, app) {
         loopback = app.loopback;
@@ -27,7 +26,6 @@ module.exports = function (File) {
     });
 
 
-
     File.upload = function (ctx, options, callback) {
 
         var Room = File.app.models.Room;
@@ -43,7 +41,6 @@ module.exports = function (File) {
             if (typeof ctx.req.query.currentTimestamp != 'undefined') {
                 currentTimestamp = ctx.req.query.currentTimestamp;
             }
-
 
             var file_folder = false;
             if (file_type == 'profile_image') {
@@ -118,18 +115,14 @@ module.exports = function (File) {
                                     console.log(obj);
                                     console.log('------------------------');
                                     console.log('------------------------');
-                                  
-                                    var name =fileInfo.name;
-                                
-                                    sharp("uploads/files_room/"+name)
-                                    .resize(200, 200)
-                                    .toFile('uploads/files_room/'+name+"_small", function(err) {
-                                    console.log(err);
-                                    // output.jpg is a 300 pixels wide and 200 pixels high image
-                                    // containing a scaled and cropped version of input.jpg
-                                        });
-                                            
-
+                                    var name = fileInfo.name;
+                                    var _small = name.replace(".", "_small.");
+                                    sharp("uploads/files_room/" + name)
+                                            .resize(250)
+                                            .toFile('uploads/files_room/' + _small, function (err) {
+                                                console.log(err);
+                                                callback(null, 1, 'success upload', obj);
+                                            });
                                 } else {
                                     callback(null, 0, 'success upload but no use', {});
                                 }
@@ -156,7 +149,6 @@ module.exports = function (File) {
                 http: {verb: 'post'}
             }
     );
- 
 
 
 };
