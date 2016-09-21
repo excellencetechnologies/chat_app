@@ -78,14 +78,8 @@ module.exports = function (File) {
                                 if (file_type == 'profile_image') {
                                     User.update_profile_image(accessToken, upload_file_url, currentTimestamp, function (ignore_param, status, message, data) {
                                         if (status == 1) {
-                                            //apply sharp here////
-                                            sharp(upload_file_url)
-                                                    .resize(100, 100)
-                                                    .toFile(upload_file_url, function (err) {
-                                                        callback(null, 1, 'success upload and updated', obj);
-                                                    });
                                             console.log('success upload and updated');
-
+                                            callback(null, 1, 'success upload and updated', obj);
                                         } else {
                                             console.log('success upload and fail to update');
                                             callback(null, 0, 'success upload and fail to update', obj);
@@ -98,13 +92,8 @@ module.exports = function (File) {
                                         room_id = ctx.req.query.room_id;
                                         Room.update_room_image(accessToken, room_id, upload_file_url, currentTimestamp, function (ignore_param, status, message, data) {
                                             if (status == 1) {
-                                                //apply sharp here////
-                                                sharp(upload_file_url)
-                                                        .resize(100, 100)
-                                                        .toFile(upload_file_url, function (err) {
-                                                            callback(null, 1, 'success upload and updated', obj);
-                                                        });
                                                 console.log('success upload and updated');
+                                                callback(null, 1, 'success upload and updated', obj);
                                             } else {
                                                 console.log('success upload and fail to update');
                                                 callback(null, 0, 'success upload and fail to update', obj);
@@ -114,13 +103,8 @@ module.exports = function (File) {
                                 } else if (file_type == 'room_background_image') {
                                     User.update_room_background_image(accessToken, upload_file_url, currentTimestamp, function (ignore_param, status, message, data) {
                                         if (status == 1) {
-                                            //apply sharp here////
-                                            sharp(upload_file_url)
-                                                    .resize(100, 100)
-                                                    .toFile(upload_file_url, function (err) {
-                                                        callback(null, 1, 'success upload and updated', obj);
-                                                    });
                                             console.log('success upload and updated');
+                                            callback(null, 1, 'success upload and updated', obj);
                                         } else {
                                             console.log('success upload and fail to update');
                                             callback(null, 0, 'success upload and fail to update', obj);
@@ -134,12 +118,17 @@ module.exports = function (File) {
                                     console.log(obj);
                                     console.log('------------------------');
                                     console.log('------------------------');
-                                    //apply sharp here////
-                                    sharp(upload_file_url)
-                                            .resize(100, 100)
-                                            .toFile(upload_file_url, function (err) {
-                                                callback(null, 1, 'success upload', obj);
-                                            });
+                                  
+                                    var name =fileInfo.name;
+                                
+                                    sharp("uploads/files_room/"+name)
+                                    .resize(200, 200)
+                                    .toFile('uploads/files_room/'+name+"_small", function(err) {
+                                    console.log(err);
+                                    // output.jpg is a 300 pixels wide and 200 pixels high image
+                                    // containing a scaled and cropped version of input.jpg
+                                        });
+                                            
 
                                 } else {
                                     callback(null, 0, 'success upload but no use', {});
@@ -167,5 +156,7 @@ module.exports = function (File) {
                 http: {verb: 'post'}
             }
     );
+ 
+
 
 };
