@@ -1,6 +1,10 @@
 var gcm = require('node-gcm');
 var UTIL = require('../modules/generic');
 var ObjectID = require('mongodb').ObjectID;
+///////////////
+var http = require('http');
+var apn = require('apn');
+var url = require('url');
 
 var CONFIG = require('../config.json');
 var PUSH_sender = new gcm.Sender( CONFIG.GOOGLE_API_KEY );
@@ -32,7 +36,12 @@ module.exports = function (Pushmessage) {
     //-------------------------------------------------------------
     //send push message
     Pushmessage.push_message = function( regTokens, message, callback){
-        PUSH_sender.send( message, { registrationTokens: regTokens }, function (err, response) {
+        console.log({regTokens:regTokens});
+        for(var i =0; i<regTokens.length ;i++ ){
+            if(regTokens[i].length > 80){
+                var arr =[];
+                arr.push(regTokens[i]);
+        PUSH_sender.send( message, { registrationTokens: arr  }, function (err, response) {
             if(err){
                 callback( false, err );
             }else{
@@ -43,6 +52,34 @@ module.exports = function (Pushmessage) {
                 }
             } 
         });
+            }else{
+                var deviceToken = regTokens[i]; 
+                var note = new apn.Notification();
+                note.badge = 1;
+                note.contentAvailable = 1;
+                if(message.params.data.body){
+                note.alert = '\uD83D\uDCE7 \u2709 '+message.params.data.body;
+                }else{
+                    note.alert = '\uD83D\uDCE7 \u2709 '+message.params.notification.body;
+                }
+                note.payload = {"title": message.params.data.title,'room_id':message.params.data.room_id,'icon':message.params.data.icon,'image':message.params.data.image,'message':message.params.data.body};
+                note.topic = "com.excellence.chatt";
+
+                var options = {
+                    production: false,
+                    cert: '/home/pricegenie/public_html/api_apps/api_chatt/api/server/models/ChatAppcert.pem', // ** NEED TO SET TO YOURS
+                    key:  '/home/pricegenie/public_html/api_apps/api_chatt/api/server/models/ChatAppKey.pem',  // ** NEED TO SET TO YOURS
+                    passphrase: 'java@123', // ** NEED TO SET TO YOURS
+                }
+                var apnProvider = new apn.Provider(options);
+                apnProvider.send(note, deviceToken).then( (result) => {
+                    console.log(result.failed[0].response);
+                    callback(true, result );
+                });
+            }
+        }
+        
+
     };
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
@@ -62,22 +99,7 @@ module.exports = function (Pushmessage) {
             message.addData('image', info.message_profile_image );
             message.addData('body', info.message_body );
             
-            
-//            var message = new gcm.Message({
-//                //priority: 'high',
-//                data: {
-//                    priority: 'high',
-//                    room_id: info.room_id,
-//                    title: info.message_owner_name,
-//                    icon: info.message_profile_image,
-//                    body: info.message_body
-//                },
-////                notification: {
-////                    title: info.message_owner_name,
-////                    icon: info.message_profile_image,
-////                    body: info.message_body
-////                }
-//            });
+
             callback( message );            
         }
         else if( type == 'private_room_created'){
