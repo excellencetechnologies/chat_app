@@ -35,38 +35,38 @@ var gcm = require('node-gcm');
                 for (var i = 0; i < regTokens.length; i++){
                 if (regTokens[i].length > 80){
                 var arr = [];
-                        arr.push(regTokens[i]);
-                        PUSH_sender.send(message, { registrationTokens: arr  }, function (err, response) {
-                        if (err){
-                        callback(false, err);
-                        } else{
-                        if (response.success == 1){
-                        callback(true, response);
-                        } else{
-                        callback(false, response);
-                        }
-                        }
-                        });
+                arr.push(regTokens[i]);
+                PUSH_sender.send(message, { registrationTokens: arr  }, function (err, response) {
+                if (err){
+                callback(false, err);
                 } else{
-                var deviceToken = regTokens[i];
-                        var note = new apn.Notification();
-                        note.badge = 1;
-                        note.contentAvailable = 1;
-                        if (message.params.data.body){
-                note.alert = '\uD83D\uDCE7 \u2709 ' + message.params.data.body;
+                if (response.success == 1){
+                callback(true, response);
                 } else{
-                note.alert = '\uD83D\uDCE7 \u2709 ' + message.params.notification.body;
+                callback(false, response);
                 }
-                note.payload = {"title": message.params.data.title, 'room_id':message.params.data.room_id, 'icon':message.params.data.icon, 'image':message.params.data.image, 'message':message.params.data.body};
-                        note.topic = "com.excellence.chatt";
-                        var options = {
-                        production: false,
-                                cert: '/home/pricegenie/public_html/api_apps/api_chatt/api/server/models/ChatAppcert.pem', // ** NEED TO SET TO YOURS
-                                key:  '/home/pricegenie/public_html/api_apps/api_chatt/api/server/models/ChatAppKey.pem', // ** NEED TO SET TO YOURS
-                                passphrase: 'java@123', // ** NEED TO SET TO YOURS
-                        }
+                }
+                });
+                } else{
+                    var deviceToken = regTokens[i];
+                    var note = new apn.Notification();
+                    note.badge = 1;
+                    note.contentAvailable = 1;
+                if (message.params.data.body){
+                    note.alert = '\uD83D\uDCE7 \u2709 ' + message.params.data.body;
+                } else{
+                    note.alert = '\uD83D\uDCE7 \u2709 ' + message.params.notification.body;
+                }
+                    note.payload = {"title": message.params.data.title, 'room_id':message.params.data.room_id, 'icon':message.params.data.icon, 'image':message.params.data.image, 'message':message.params.data.body};
+                    note.topic = "com.excellence.chatt";
+                    var options = {
+                    production: false,
+                    cert: '/home/pricegenie/public_html/api_apps/api_chatt/api/server/models/ChatAppcert.pem', // ** NEED TO SET TO YOURS
+                    key:  '/home/pricegenie/public_html/api_apps/api_chatt/api/server/models/ChatAppKey.pem', // ** NEED TO SET TO YOURS
+                    passphrase: 'java@123', // ** NEED TO SET TO YOURS
+                    }
                 var apnProvider = new apn.Provider(options);
-                        apnProvider.send(note, deviceToken).then((result) = > {
+                    apnProvider.send(note, deviceToken).then((result) = > {
                 callback(true, result);
                 });
                 }
