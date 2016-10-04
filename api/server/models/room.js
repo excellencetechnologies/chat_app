@@ -114,26 +114,26 @@ module.exports = function (Room) {
             }
         });
     }
-        Room.FN_delete_friend = function (info, callback) {
+    Room.FN_delete_friend = function (info, callback) {
         var User = Room.app.models.User;
 
         var user_id = info.user_id;
         var delete_friend_user_id = info.delete_friend_user_id;
 
         User.update({
-        id: new ObjectID(user_id)
+            id: new ObjectID(user_id)
         }, {
-        '$pull': {'friends': new ObjectID(delete_friend_user_id)}
+            '$pull': {'friends': new ObjectID(delete_friend_user_id)}
         }, {
-        allowExtendedOperators: true
+            allowExtendedOperators: true
         }, function (err, result) {
-        if (err) {
-        callback(false);
-        } else {
-        callback(true);
-        }
+            if (err) {
+                callback(false);
+            } else {
+                callback(true);
+            }
         });
-        }
+    }
     Room.FN_add_socket_to_room_and_user = function (info, callback) {
         var User = Room.app.models.User;
         var accessToken = info.accessToken;
@@ -432,7 +432,6 @@ module.exports = function (Room) {
                                                     var room_user_id = room_users[k].id;
                                                     if (room_user_id.toString() != userId.toString()) {
                                                         var user_tokens = room_users[k].token;
-                                                        console.log(user_tokens);
                                                         if (typeof user_tokens != 'undefined' && user_tokens != '') {
 
                                                             var is_mute_norification_user = false;
@@ -469,7 +468,7 @@ module.exports = function (Room) {
                                                 },
                                                 message_time: server_time,
                                                 message_status: 'sent',
-                                                userId:userId
+                                                userId: userId
                                             });
 
                                             new_message.save(function (err) {
@@ -489,7 +488,7 @@ module.exports = function (Room) {
 
                                                     //--END-----update last_message_received_time for room-----
                                                     var data = {
-                                                        new_message:new_message,
+                                                        new_message: new_message,
                                                         msg_local_id: msg_local_id,
                                                         message_id: new_message.id,
                                                         message_status: new_message.message_status,
@@ -2438,9 +2437,6 @@ module.exports = function (Room) {
                                         result = result.toJSON();
                                         room_owner = result.room_owner;
                                         room_users = result.room_users;
-                                        console.log(room_users.id);
-                                        console.log(room_owner.id);
-
                                         Room.update({
                                             _id: new ObjectID(room_id)
                                         }, {
