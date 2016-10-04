@@ -338,7 +338,6 @@ module.exports = function (Room) {
                 }
             }
         });
-
     };
     Room.remoteMethod(
             'create_room', {

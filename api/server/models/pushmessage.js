@@ -141,6 +141,7 @@ var gcm = require('node-gcm');
                 ///////////////////////////////////////////////////////////////////////////////////
                 ///////////////////////////////////////////////////////////////////////////////////
                 //to insert a new info in push messagetable which will be used as for push message
+
                 Pushmessage.create_push_message = function (type, tokens, message_info, callback) {
                 var valid_type = [
                         'room_message', // when user get a message and is not seen at the time of push message
