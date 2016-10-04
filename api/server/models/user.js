@@ -82,6 +82,7 @@ module.exports = function (User) {
     
     //********************************* START REGISTER AND LOGIN **********************************
     User.register_login = function (action, action_type, social_id, platform, device_id, token, email_id, name, password, profile_image, gender, dob, currentTimestamp, callback) {
+        console.log({action:action, action_type:action_type ,social_id:social_id, platform: platform, device_id:device_id, token:token, email_id:email_id,name: name, password:password,profile_image:profile_image,gender:gender,dob:dob,currentTimestamp:currentTimestamp});
         var LIFE_OF_ACCESS_TOKEN = 60 * 60 * 24 * 1000;
         if (action && action_type && email_id) {
             if (typeof name == 'undefined' || name == '') {

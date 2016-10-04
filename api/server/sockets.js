@@ -86,6 +86,8 @@ module.exports.listen = function(app){
                     'message_id' : res_data.message_id,
                     'message_status' : res_data.message_status,
                     'message_time' : res_data.message_time,
+                    'message_body' : res_data.message.body,
+                    'userId':res_data.new_message.userId,
                 };
             }
             var response = {
@@ -96,6 +98,7 @@ module.exports.listen = function(app){
                     'user_data' : user_data
                 }
             };
+            // console.log(response);
             callback( response );
         })
     }
@@ -319,7 +322,6 @@ module.exports.listen = function(app){
                 console.log( 'SOCKET CALL :: join_public_room :: room_id '+ room_id );
                 FN_join_public_room( accessToken, room_id, currentTimestamp, function( response ){
                     if( response.status == 1 ){
-                        console.log( response );
                         var d = {
                             type : 'alert',
                             data : response
