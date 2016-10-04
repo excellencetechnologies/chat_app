@@ -280,7 +280,6 @@ module.exports = function (User) {
             }
     );
 //********************************* END REGISTER AND LOGIN ************************************    
-
 //********************************* START USER VERIFICATIION **********************************
     User.do_user_verification = function (email_id, code, callback) {
         email_id = email_id.toLowerCase();

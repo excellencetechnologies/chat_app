@@ -24,9 +24,9 @@ module.exports = function (Room) {
     Room.disableRemoteMethod('__findById__accessTokens', false);
     Room.disableRemoteMethod('__get__accessTokens', false);
     Room.disableRemoteMethod('__updateById__accessTokens', false);
-    //-------------------------------------------------------------
 
-    //--start--ROOM GENERIC function------
+//-------------------------------------------------------------
+//--start--ROOM GENERIC function------
     Room.FN_mute_room_notifications = function (info, callback) {
         var room_id = info.room_id;
         var user_id = info.user_id;
@@ -79,7 +79,6 @@ module.exports = function (Room) {
         var User = Room.app.models.User;
         var user_id = info.user_id;
         var block_user_id = info.block_user_id;
-
         User.update({
             id: new ObjectID(user_id)
         }, {
@@ -96,10 +95,8 @@ module.exports = function (Room) {
     }
     Room.FN_add_friend = function (info, callback) {
         var User = Room.app.models.User;
-
         var user_id = info.user_id;
         var chat_with_user_id = info.chat_with;
-
         User.update({
             id: new ObjectID(user_id)
         }, {
@@ -116,10 +113,8 @@ module.exports = function (Room) {
     }
     Room.FN_delete_friend = function (info, callback) {
         var User = Room.app.models.User;
-
         var user_id = info.user_id;
         var delete_friend_user_id = info.delete_friend_user_id;
-
         User.update({
             id: new ObjectID(user_id)
         }, {
@@ -202,8 +197,7 @@ module.exports = function (Room) {
             }
         });
     };
-    //--end--ROOM GENERIC function------
-
+//--end--ROOM GENERIC function------
     Room.create_room = function (accessToken, room_type, chat_with, room_name, room_description, currentTimestamp, callback) {
         var User = Room.app.models.User;
         var Pushmessage = Room.app.models.Pushmessage;
@@ -286,7 +280,7 @@ module.exports = function (Room) {
                                                 'room_id': room_id,
                                                 'room_type': room_type
                                             };
-                                            //--start---update friends to each user--
+//--start---update friends to each user--
                                             var info_friend_1 = {
                                                 user_id: owner_user_id,
                                                 chat_with: chat_with
@@ -304,7 +298,7 @@ module.exports = function (Room) {
                                                             callback(null, 0, 'try again', {});
                                                         } else {
                                                             callback(null, 1, 'Private Chat Room Created', data);
-                                                            //-start-send push message to use
+//-start-send push message to use
                                                             User.FN_get_user_by_id(owner_user_id, function (u_status, u_message, u_data_owner) {
                                                                 if (u_status == 1) {
                                                                     User.FN_get_user_by_id(chat_with, function (u_status, u_message, u_data_chat_with) {
@@ -321,12 +315,12 @@ module.exports = function (Room) {
                                                                     })
                                                                 }
                                                             })
-                                                            //-end-send push message to user
+//-end-send push message to user
                                                         }
                                                     })
                                                 }
                                             })
-                                            //--end---update friends to each user--
+//--end---update friends to each user--
                                         }
                                     });
                                 }
@@ -338,7 +332,6 @@ module.exports = function (Room) {
                 }
             }
         });
-
     };
     Room.remoteMethod(
             'create_room', {
@@ -361,8 +354,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
     Room.room_message = function (msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, callback) {
         var User = Room.app.models.User;
         var Pushmessage = Room.app.models.Pushmessage;
@@ -405,10 +398,9 @@ module.exports = function (Room) {
                                         if (result.length == 0) {
                                             callback(null, 0, 'Room or User not exists', {});
                                         } else {
-                                            //----start---for push notification info--------
+//----start---for push notification info--------
                                             var TOKENS = [];
                                             var msg_by_name = msg_by_profile_image = '';
-
                                             var room_name = '';
                                             var room_description = '';
                                             var room_type = '';
@@ -422,18 +414,15 @@ module.exports = function (Room) {
                                                 }
                                                 room_image = room_info.room_image;
                                                 room_users = room_info.room_users;
-
                                                 notification_mute_users = [];
                                                 if (typeof room_info.notification_mute_users != 'undefined') {
                                                     notification_mute_users = room_info.notification_mute_users;
                                                 }
-
                                                 for (var k in room_users) {
                                                     var room_user_id = room_users[k].id;
                                                     if (room_user_id.toString() != userId.toString()) {
                                                         var user_tokens = room_users[k].token;
                                                         if (typeof user_tokens != 'undefined' && user_tokens != '') {
-
                                                             var is_mute_norification_user = false;
                                                             if (notification_mute_users.length > 0) {
                                                                 for (var m in notification_mute_users) {
@@ -441,13 +430,11 @@ module.exports = function (Room) {
                                                                         is_mute_norification_user = true;
                                                                     }
                                                                 }
-
                                                             }
                                                             if (is_mute_norification_user == false) {
                                                                 TOKENS.push(user_tokens);
                                                             } else {
                                                             }
-
                                                         }
                                                     } else {
                                                         msg_by_name = room_users[k].name;
@@ -455,9 +442,7 @@ module.exports = function (Room) {
                                                     }
                                                 }
                                             });
-
-
-                                            //----end---for push notification info--------
+//----end---for push notification info--------
                                             var server_time = UTIL.currentTimestamp();
                                             var new_message = new Message({
                                                 room_id: new ObjectID(room_id),
@@ -470,12 +455,11 @@ module.exports = function (Room) {
                                                 message_status: 'sent',
                                                 userId: userId
                                             });
-
                                             new_message.save(function (err) {
                                                 if (err) {
                                                     callback(null, 0, 'try again', {});
                                                 } else {
-                                                    //--START---update last_message_received_time for room-----
+//--START---update last_message_received_time for room-----
                                                     Room.update({
                                                         _id: new ObjectID(room_id)
                                                     }, {
@@ -485,8 +469,7 @@ module.exports = function (Room) {
                                                         } else {
                                                         }
                                                     });
-
-                                                    //--END-----update last_message_received_time for room-----
+//--END-----update last_message_received_time for room-----
                                                     var data = {
                                                         new_message: new_message,
                                                         msg_local_id: msg_local_id,
@@ -500,7 +483,7 @@ module.exports = function (Room) {
                                                         },
                                                         message_time: server_time
                                                     }
-                                                    //----start---for push notification message--------
+//----start---for push notification message--------
                                                     if (TOKENS.length > 0) {
                                                         if (room_type == 'public' && room_name != '') {
                                                             if (message_type == 'room_alert_message') {
@@ -521,7 +504,7 @@ module.exports = function (Room) {
                                                         Pushmessage.create_push_message('room_message', TOKENS, push_msg_info, function (ignore_param, p_status, p_message, p_data) {
                                                         })
                                                     }
-                                                    //----end---for push notification message--------
+//----end---for push notification message--------
                                                     callback(null, 1, 'Message posted', data);
                                                 }
                                             });
@@ -555,8 +538,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
     Room.list_my_rooms = function (accessToken, room_type, currentTimestamp, callback) {
         var User = Room.app.models.User;
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
@@ -570,7 +553,6 @@ module.exports = function (Room) {
                     var access_token_userid = userId;
                     var logged_user_id = userId;
                     userId = new ObjectID(userId);
-
                     if (room_type == 'all') {
                         var wh = {
                             room_users: {'in': [userId]},
@@ -590,7 +572,6 @@ module.exports = function (Room) {
                                 geo_long_logged_user = user.geo_location[0];
                                 geo_lat_logged_user = user.geo_location[1];
                             }
-
                             Room.find({
                                 "where": wh,
                                 "order": 'last_message_received_time DESC',
@@ -616,15 +597,12 @@ module.exports = function (Room) {
                                             kr = kr.toJSON();
                                             kr_room_type = kr.room_type;
                                             kr_room_users = kr.room_users
-
                                             var show_details_for_list = {};
                                             if (kr_room_type == 'private') {
                                                 for (var k1 in kr_room_users) {
                                                     k1_user = kr_room_users[k1];
                                                     k1_user_id = k1_user.id;
                                                     if (logged_user_id.toString() != k1_user_id.toString()) {
-
-
                                                         var k1_user_status = k1_user.status;
                                                         var k1_user_last_seen = k1_user.last_seen;
                                                         var aa = {
@@ -635,16 +613,12 @@ module.exports = function (Room) {
                                                         User.FN_get_user_status(aa, function (s) {
                                                             user_status = s
                                                         });
-
-
                                                         var geo_long_user = geo_lat_user = '';
                                                         if (typeof k1_user.geo_location != 'undefined' && k1_user.geo_location.length == 2) {
                                                             geo_long_user = k1_user.geo_location[0];
                                                             geo_lat_user = k1_user.geo_location[1];
                                                         }
-
                                                         var distance_from_logged_user = '';
-
                                                         if (geo_long_logged_user != '' && geo_lat_logged_user != '' && geo_long_user != '' && geo_lat_user != '') {
                                                             distance_from_logged_user = UTIL.get_distance(geo_lat_logged_user, geo_long_logged_user, geo_lat_user, geo_long_user);
                                                         }
@@ -683,9 +657,7 @@ module.exports = function (Room) {
                                                 }
                                             }
                                             kr.show_details_for_list = show_details_for_list;
-
                                             if (typeof kr.is_deleted != 'undefined' && kr.is_deleted == 1) {
-
                                             } else {
                                                 new_result.push(kr);
                                             }
@@ -723,8 +695,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
     Room.list_room_messages = function (accessToken, room_id, page, limit, currentTimestamp, callback) {
         var User = Room.app.models.User;
         var Message = Room.app.models.Message;
@@ -803,8 +775,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
     Room.update_message_status = function (accessToken, room_id, message_id, status, currentTimestamp, callback) {
         var org_message_id = message_id;
         var User = Room.app.models.User;
@@ -902,9 +874,9 @@ module.exports = function (Room) {
                 }
             }
     );
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
-    // logged in user will be able to join a public room using this
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+// logged in user will be able to join a public room using this
     Room.join_public_room = function (accessToken, room_id, currentTimestamp, callback) {
         var User = Room.app.models.User;
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
@@ -947,7 +919,6 @@ module.exports = function (Room) {
                                             var room_room_description = result1.room_description;
                                             var room_existing_users = result1.room_users;
                                             var user_already_member = false;
-
                                             if (typeof room_existing_users != 'undefined' && room_existing_users.length > 0) {
                                                 for (var k in room_existing_users) {
                                                     if (k.toString() == userId.toString()) {
@@ -1024,8 +995,7 @@ module.exports = function (Room) {
                 }
             }
     );
-
-    //********************************* START LIST OF ALL public rooms **********************************
+//********************************* START LIST OF ALL public rooms **********************************
     Room.get_public_rooms = function (accessToken, page, limit, currentTimestamp, callback) {
         var User = Room.app.models.User;
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
@@ -1036,7 +1006,6 @@ module.exports = function (Room) {
                     callback(null, 401, 'UnAuthorized', {});
                 } else {
                     var access_token_userid = accessToken.userId
-
                     var num = 0;
                     num = page * 1;
                     User.findById(access_token_userid, function (err, user) {
@@ -1126,9 +1095,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* END LIST OF ALL USERS ************************************ 
-
-    //********************************* START get room info **********************************
+//********************************* END LIST OF ALL USERS ************************************ 
+//********************************* START get room info **********************************
     Room.get_room_info = function (accessToken, room_id, currentTimestamp, callback) {
         var User = Room.app.models.User;
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
@@ -1187,14 +1155,11 @@ module.exports = function (Room) {
                                                 is_room_owner = 1;
                                             }
                                             result.is_room_owner = is_room_owner;
-
                                             var kr_room_type = result.room_type;
                                             var kr_room_name = result.room_name;
                                             var kr_room_description = result.room_description;
                                             var kr_room_users = result.room_users;
-
                                             var ROOM_NOTIFICATIONS_STATUS = 1;
-
                                             var kr_notification_mute_users = [];
                                             if (typeof result.notification_mute_users != 'undefined' && result.notification_mute_users.length > 0) {
                                                 kr_notification_mute_users = result.notification_mute_users;
@@ -1204,7 +1169,6 @@ module.exports = function (Room) {
                                                     }
                                                 }
                                             }
-
                                             if (kr_room_users.length > 0) {
                                                 for (var p in kr_room_users) {
                                                     pr = kr_room_users[p];
@@ -1219,11 +1183,8 @@ module.exports = function (Room) {
                                                     kr_room_users[p].status = status;
                                                 }
                                             }
-
                                             var short_room_name = kr_room_name;
                                             var short_room_description = kr_room_description;
-
-
                                             if (typeof short_room_name != 'undefined' && short_room_name.length > 20) {
                                                 short_room_name = short_room_name.slice(0, 20) + '....';
                                             }
@@ -1232,11 +1193,9 @@ module.exports = function (Room) {
                                             }
                                             result.short_room_name = short_room_name;
                                             result.short_room_description = short_room_description;
-
                                             var data = {
                                                 'room': result
                                             };
-
                                             var admin_friends = [];
                                             if (typeof user.friends != 'undefined' && user.friends.length > 0) {
                                                 admin_friends = user.friends;
@@ -1259,7 +1218,7 @@ module.exports = function (Room) {
                                             }
                                             data.room_notification_status = ROOM_NOTIFICATIONS_STATUS;
                                             if (kr_room_type == 'public' && is_room_owner == 1 && kr_room_users.length > 0 && admin_friends.length > 0) {
-                                                // this is for so, that he can view his friends who are not a room user and he can add that member
+// this is for so, that he can view his friends who are not a room user and he can add that member
                                                 var admin_friends_not_room_members = [];
                                                 for (var k in admin_friends) {
                                                     var already_member = false;
@@ -1316,10 +1275,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* END get room info ************************************ 
-
-
-    //********************************* START leave public room **********************************
+//********************************* END get room info ************************************ 
+//********************************* START leave public room **********************************
     Room.leave_public_group = function (accessToken, room_id, currentTimestamp, callback) {
         var User = Room.app.models.User;
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
@@ -1405,7 +1362,7 @@ module.exports = function (Room) {
                                                         sockets_to_remove: sockets_to_remove
                                                     }
                                                     callback(null, 1, 'Public room left', data);
-                                                    //------------------
+//------------------
                                                     User.update({
                                                         id: new ObjectID(access_token_userid),
                                                     }, {
@@ -1449,10 +1406,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* END leave public room ************************************ 
-
-
-    //********************************* START remove public member by admin **********************************
+//********************************* END leave public room ************************************ 
+//********************************* START remove public member by admin **********************************
     Room.remove_public_room_member = function (accessToken, room_id, user_id, currentTimestamp, callback) {
         Pushmessage = Room.app.models.Pushmessage;
         var User = Room.app.models.User;
@@ -1497,7 +1452,6 @@ module.exports = function (Room) {
                                         room_sockets = [];
                                         user_sockets = [];
                                         room_sockets = result.sockets;
-
                                         if (room_owner.id.toString() == access_token_userid.toString()) {
                                             if (access_token_userid.toString() == user_id.toString()) {
                                                 callback(null, 0, "Admin can't remove", {});
@@ -1515,7 +1469,6 @@ module.exports = function (Room) {
                                                             name: kr.name,
                                                             profile_image: kr.profile_image,
                                                         }
-
                                                     }
                                                 }
                                                 if (typeof room_sockets != 'undefined' && typeof user_sockets != 'undefined' && room_sockets.length > 0 && user_sockets.length > 0) {
@@ -1525,11 +1478,9 @@ module.exports = function (Room) {
                                                         }
                                                     }
                                                 }
-
                                                 if (remove_users_exists == false) {
                                                     callback(null, 0, "User is not room member", {});
                                                 } else {
-
                                                     Room.update({
                                                         id: new ObjectID(room_id),
                                                     }, {
@@ -1548,7 +1499,7 @@ module.exports = function (Room) {
                                                                 left_user_info: remove_user_info
                                                             }
                                                             callback(null, 1, 'User removed from room', data);
-                                                            //---remove sockets from user---------------
+//---remove sockets from user---------------
                                                             User.update({
                                                                 id: new ObjectID(user_id),
                                                             }, {
@@ -1597,10 +1548,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* END remove public member by admin **********************************
-
-
-    //********************************* START remove public member by admin **********************************
+//********************************* END remove public member by admin **********************************
+//********************************* START remove public member by admin **********************************
     Room.delete_public_room = function (accessToken, room_id, currentTimestamp, callback) {
         var User = Room.app.models.User;
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
@@ -1654,13 +1603,11 @@ module.exports = function (Room) {
                                                 var LIST_sockets_to_remove = result.sockets;
                                                 var LIST_room_users = [];
                                                 var LIST_room_users_object_id = [];
-
                                                 for (var k in room_users) {
                                                     kr = room_users[k];
                                                     LIST_room_users.push(kr.id);
                                                     LIST_room_users_object_id.push(new ObjectID(kr.id))
                                                 }
-
                                                 Room.update({
                                                     id: new ObjectID(room_id),
                                                 }, {
@@ -1679,7 +1626,7 @@ module.exports = function (Room) {
                                                         var data = {
                                                             room_id: room_id,
                                                         }
-                                                        //---remove sockets from users---------------
+//---remove sockets from users---------------
                                                         for (var u in LIST_room_users) {
                                                             User.update({
                                                                 'id': new ObjectID(LIST_room_users[k]),
@@ -1727,10 +1674,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* END remove public member by admin **********************************
-
-    //********************************* START get user room unread messages **********************************
-
+//********************************* END remove public member by admin **********************************
+//********************************* START get user room unread messages **********************************
     Room.get_user_room_unread_messages = function (accessToken, room_id, currentTimestamp, callback) {
         var User = Room.app.models.User;
         var Message = Room.app.models.Message;
@@ -1801,11 +1746,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* END get user room unread messages **********************************
-
-
-
-    //********************************* START logged in user can update his profile_image**********************************
+//********************************* END get user room unread messages **********************************
+//********************************* START logged in user can update his profile_image**********************************
     Room.update_room_image = function (accessToken, room_id, image_url, currentTimestamp, callback) {
         var User = Room.app.models.User;
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
@@ -1891,11 +1833,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* END logged in user can update his profile **********************************
-
-
-
-    //********************************* START admin can add member to his room **********************************
+//********************************* END logged in user can update his profile **********************************
+//********************************* START admin can add member to his room **********************************
     Room.admin_add_user_to_public_room = function (accessToken, room_id, to_be_add_user_id, currentTimestamp, callback) {
         var User = Room.app.models.User;
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
@@ -2004,11 +1943,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* START admin can add member to his room **********************************
-
-
-
-    //********************************* START user delete private room **********************************
+//********************************* START admin can add member to his room **********************************
+//********************************* START user delete private room **********************************
     Room.delete_private_room = function (accessToken, room_id, currentTimestamp, callback) {
         var User = Room.app.models.User;
         var Pushmessage = Room.app.models.Pushmessage;
@@ -2052,10 +1988,8 @@ module.exports = function (Room) {
                                         var room_users = result.room_users;
                                         var room_user_1_id = room_users[0].id;
                                         var room_user_2_id = room_users[1].id;
-
                                         var TOKENS = [];
                                         var push_data_name = push_data_profile_image = '';
-
                                         for (var k in room_users) {
                                             if (access_token_userid.toString() == room_users[k].id.toString()) {
                                                 IS_ROOM_MEMBER = true;
@@ -2065,7 +1999,6 @@ module.exports = function (Room) {
                                                 TOKENS.push(room_users[k].token);
                                             }
                                         }
-
                                         if (IS_ROOM_MEMBER == false) {
                                             callback(null, 0, 'You are not member of this room', {});
                                         } else {
@@ -2087,7 +2020,6 @@ module.exports = function (Room) {
                                                                 room_id: room_id
                                                             }
                                                             Room.FN_delete_room_messages(r_info, function (ret1) {
-
                                                                 if (TOKENS.length > 0) {
                                                                     var push_msg_info = {
                                                                         name: push_data_name,
@@ -2096,12 +2028,10 @@ module.exports = function (Room) {
                                                                     Pushmessage.create_push_message('private_room_deleted', TOKENS, push_msg_info, function (ignore_param, p_status, p_message, p_data) {
                                                                     })
                                                                 }
-
                                                                 var another_user_id = room_user_1_id;
                                                                 if (another_user_id.toString() == access_token_userid.toString()) {
                                                                     another_user_id = room_user_2_id;
                                                                 }
-
                                                                 var data = {
                                                                     room_id: room_id,
                                                                     user_id: access_token_userid,
@@ -2146,10 +2076,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* END user delete private room **********************************
-
-
-    //********************************* START user delete private room **********************************
+//********************************* END user delete private room **********************************
+//********************************* START user delete private room **********************************
     Room.block_private_room = function (accessToken, room_id, currentTimestamp, callback) {
         var Pushmessage = Room.app.models.Pushmessage;
         Room.delete_private_room(accessToken, room_id, currentTimestamp, function (ignore_param, res_status, res_message, res_data) {
@@ -2199,11 +2127,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* END user delete private room **********************************
-
-
-
-    //********************************* START user can mute room push notification**********************************
+//********************************* END user delete private room **********************************
+//********************************* START user can mute room push notification**********************************
     Room.mute_room_notification = function (accessToken, room_id, currentTimestamp, callback) {
         var User = Room.app.models.User;
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
@@ -2244,9 +2169,7 @@ module.exports = function (Room) {
                                         result = result.toJSON();
                                         room_owner = result.room_owner;
                                         room_users = result.room_users;
-
                                         var IS_ROOM_USER = false;
-
                                         for (var k in room_users) {
                                             if (access_token_userid.toString() == room_users[k].id.toString()) {
                                                 IS_ROOM_USER = true;
@@ -2264,8 +2187,6 @@ module.exports = function (Room) {
                                                     callback(null, 1, 'Room notifications are OFF', {});
                                                 }
                                             })
-
-
                                         } else {
                                             callback(null, 0, 'You are not a room user', {});
                                         }
@@ -2298,10 +2219,8 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* END user can mute room push notification**********************************
-
-
-    //********************************* START user can unmute room push notification**********************************
+//********************************* END user can mute room push notification**********************************
+//********************************* START user can unmute room push notification**********************************
     Room.unmute_room_notification = function (accessToken, room_id, currentTimestamp, callback) {
         var User = Room.app.models.User;
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
@@ -2342,9 +2261,7 @@ module.exports = function (Room) {
                                         result = result.toJSON();
                                         room_owner = result.room_owner;
                                         room_users = result.room_users;
-
                                         var IS_ROOM_USER = false;
-
                                         for (var k in room_users) {
                                             if (access_token_userid.toString() == room_users[k].id.toString()) {
                                                 IS_ROOM_USER = true;
@@ -2362,8 +2279,6 @@ module.exports = function (Room) {
                                                     callback(null, 1, 'Room notifications are ON', {});
                                                 }
                                             })
-
-
                                         } else {
                                             callback(null, 0, 'You are not a room user', {});
                                         }
@@ -2396,7 +2311,7 @@ module.exports = function (Room) {
                 }
             }
     );
-    //********************************* END user can unmute room push notification**********************************
+//********************************* END user can unmute room push notification**********************************
     Room.update_room_background_image = function (accessToken, room_id, image_url, currentTimestamp, callback) {
         var User = Room.app.models.User;
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
@@ -2448,7 +2363,6 @@ module.exports = function (Room) {
                                                 callback(null, 1, 'Room background image updated', room_owner, room_users, {});
                                             }
                                         });
-
                                     } else {
                                         callback(null, 0, 'Room not found', {});
                                     }
@@ -2479,8 +2393,4 @@ module.exports = function (Room) {
                 }
             }
     );
-
-
-
-
 };
