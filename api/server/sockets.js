@@ -1,9 +1,7 @@
 var socketio = require('socket.io');
-
 module.exports.listen = function (app) {
     var Room = app._events.request.models.Room;
     var User = app._events.request.models.User;
-
 
     function list_my_rooms(accessToken, room_type, currentTimestamp, callback) {
         Room.list_my_rooms(accessToken, room_type, currentTimestamp, function (ignore_param, res_status, res_message, res_data) {
@@ -105,7 +103,6 @@ module.exports.listen = function (app) {
         var accessToken = info.accessToken;
         var room_id = info.room_id;
         var socket_id = info.socket_id;
-
         Room.FN_add_socket_to_room_and_user(info, function (ignore_param, res_status, res_message, res_data) {
             response = {
                 status: res_status,
@@ -175,7 +172,6 @@ module.exports.listen = function (app) {
             callback(response);
         })
     }
-
     function FN_unblock_user(accessToken, user_id, currentTimestamp, callback) {
         User.unblock_user(accessToken, user_id, currentTimestamp, function (ignore_param, res_status, res_message, res_data) {
             var response = {
@@ -186,7 +182,6 @@ module.exports.listen = function (app) {
             callback(response);
         })
     }
-
     function FN_mute_room_notification(accessToken, room_id, currentTimestamp, callback) {
         Room.mute_room_notification(accessToken, room_id, currentTimestamp, function (ignore_param, res_status, res_message, res_data) {
             var response = {
@@ -215,7 +210,6 @@ module.exports.listen = function (app) {
         console.log('----------------------------------------');
         console.log('App is opened somewhere in this world !!');
         console.log('----------------------------------------');
-
         socket.on('create_room', function (accessToken, room_type, chat_with, room_name, room_description, currentTimestamp) {
             create_room(accessToken, room_type, chat_with, room_name, room_description, currentTimestamp, function (response) {
                 socket.emit('new_private_room', response);
@@ -239,10 +233,9 @@ module.exports.listen = function (app) {
                 }
             })
         });
-
         //sockets events ( trying to create generic )
         socket.on('APP_SOCKET_EMIT', function (type, info) {
-            //whenever a room is open 'room_open' will be emit on mobile app.
+        //whenever a room is open 'room_open' will be emit on mobile app.
             if (type == 'room_open') {
                 console.log('----------------------------------------');
                 var accessToken = info.accessToken;
@@ -304,7 +297,6 @@ module.exports.listen = function (app) {
                         }
                         //update_room_unread_notification -- this will have a room_id, with that room_id show_room_unread_notification will be call
                         socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'update_room_unread_notification', d11);
-
                     }
                 });
             } else if (type == 'join_public_room') {
@@ -332,7 +324,7 @@ module.exports.listen = function (app) {
                         FN_room_message(msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, function (response) {
                             if (response.status == 1) {
                                 console.log(message_type + ' :: ' + message);
-                                // will be available on other users of room
+                        // will be available on other users of room
                                 var d1 = {
                                     type: 'alert',
                                     data: response.data.broadcast_data
@@ -368,7 +360,7 @@ module.exports.listen = function (app) {
                         FN_room_message(msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, function (response) {
                             if (response.status == 1) {
                                 console.log(message_type + ' :: ' + message);
-                                // will be available on other users of room
+                        // will be available on other users of room
                                 var d1 = {
                                     type: 'alert',
                                     data: response.data.broadcast_data
@@ -398,7 +390,7 @@ module.exports.listen = function (app) {
                         FN_room_message(msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, function (response) {
                             if (response.status == 1) {
                                 console.log(message_type + ' :: ' + message);
-                                // will be available on other users of room
+                    // will be available on other users of room
                                 var d1 = {
                                     type: 'alert',
                                     data: response.data.broadcast_data
@@ -406,13 +398,13 @@ module.exports.listen = function (app) {
                                 socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'new_room_message', d1);
                             }
                         });
-                        //--to emit from client side so that scoket can be removed  from room
+                    //--to emit from client side so that scoket can be removed  from room
                         var remove_socket_from_room_data = {
                             user_id: left_user_info.user_id,
                             room_id: room_id
                         };
                         socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'remove_socket_from_room', remove_socket_from_room_data);
-                        //--remove token
+                    //--remove token
                         if (typeof io.sockets.adapter.rooms[room_id] != 'undefined') {
                             if (typeof io.sockets.adapter.rooms[room_id].sockets != 'undefined') {
                                 socket.leave(room_id);
@@ -442,7 +434,7 @@ module.exports.listen = function (app) {
                         FN_room_message(msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, function (response) {
                             if (response.status == 1) {
                                 console.log(message_type + ' :: ' + message);
-                                // will be available on other users of room
+                            // will be available on other users of room
                                 var d1 = {
                                     type: 'alert',
                                     data: response.data.broadcast_data
@@ -450,7 +442,7 @@ module.exports.listen = function (app) {
                                 socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'new_room_message', d1);
                             }
                         });
-                        //--to emit from client side so that scoket can be removed  from room
+                    //--to emit from client side so that scoket can be removed  from room
                         var remove_socket_from_room_data = {
                             user_id: left_user_info.user_id,
                             room_id: room_id
@@ -507,7 +499,7 @@ module.exports.listen = function (app) {
                         FN_room_message(msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, function (response) {
                             if (response.status == 1) {
                                 console.log(message_type + ' :: ' + message);
-                                // will be available on other users of room
+                        // will be available on other users of room
                                 var d1 = {
                                     type: 'alert',
                                     data: response.data.broadcast_data
@@ -575,9 +567,7 @@ module.exports.listen = function (app) {
                 var accessToken = info.accessToken;
                 var user_id = info.user_id;
                 var currentTimestamp = info.currentTimestamp;
-
                 console.log('SOCKET CALL :: get_user_profile :: for user_id - ' + user_id);
-
                 FN_get_user_profile(accessToken, user_id, currentTimestamp, function (response) {
                     if (response.status == 1) {
                         var d = {
@@ -592,9 +582,7 @@ module.exports.listen = function (app) {
                 var accessToken = info.accessToken;
                 var room_id = info.room_id;
                 var currentTimestamp = info.currentTimestamp;
-
                 console.log('SOCKET CALL :: delete_private_room :: for room_id - ' + room_id);
-
                 FN_delete_private_room(accessToken, room_id, currentTimestamp, function (response) {
                     var d = {
                         type: 'alert',
@@ -613,9 +601,7 @@ module.exports.listen = function (app) {
                 var accessToken = info.accessToken;
                 var room_id = info.room_id;
                 var currentTimestamp = info.currentTimestamp;
-
                 console.log('SOCKET CALL :: block_user :: for room_id - ' + room_id);
-
                 FN_block_private_room(accessToken, room_id, currentTimestamp, function (response) {
                     var d = {
                         type: 'alert',
@@ -676,6 +662,5 @@ module.exports.listen = function (app) {
                 });
             }
         });
-
     });
 }
