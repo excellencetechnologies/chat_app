@@ -3,12 +3,10 @@ var lodash = require('lodash');
 var moment = require('moment');
 var generatePassword = require('password-generator');
 var ObjectID = require('mongodb').ObjectID;
-
+var faker = require('faker');
 var CONFIG = require('../config');
-
 var geocoderProvider = 'google';
 var httpAdapter = 'https';
-
 var extra = {
     apiKey: CONFIG.GOOGLE_API_KEY,
     formatter: null
@@ -16,12 +14,11 @@ var extra = {
 var geocoder = require('node-geocoder')(geocoderProvider, httpAdapter, extra);
 
 module.exports = function (User) {
-    //--start--USER GENERIC function------
+//--start--USER GENERIC function------
     User.FN_unblock_user = function (info, callback) {
         var user_id = info.user_id;
         var unblock_user_id = info.unblock_user_id;
-
-        User.update({
+        sUser.update({
             id: new ObjectID(user_id)
         }, {
             '$pull': {'blocked_users': new ObjectID(unblock_user_id)}
@@ -76,10 +73,10 @@ module.exports = function (User) {
         callback(ret_status);
 
     };
-    //--end--USER GENERIC function------
+//--end--USER GENERIC function------
 
 
-    //********************************* START REGISTER AND LOGIN **********************************
+//********************************* START REGISTER AND LOGIN **********************************
     User.register_login = function (action, action_type, social_id, platform, device_id, token, email_id, name, password, profile_image, gender, dob, currentTimestamp, callback) {
         var LIFE_OF_ACCESS_TOKEN = 60 * 60 * 24 * 1000;
         if (action && action_type && email_id) {
@@ -112,7 +109,7 @@ module.exports = function (User) {
                                         if (err) {
                                             callback(null, 0, 'Invalid login', {});
                                         } else {
-                                            //--start-- update user device_id and token
+//--start-- update user device_id and token
                                             User.update({email: email_id}, {
                                                 device_id: device_id,
                                                 token: token,
@@ -131,14 +128,14 @@ module.exports = function (User) {
                                                     callback(null, 1, 'Success login', data);
                                                 }
                                             });
-                                            //--end-- update user device_id and token
+//--end-- update user device_id and token
                                         }
                                     });
                                 } else {
                                     if (r_verification_status == 0) {
                                         callback(null, 3, 'Please verify you account first', {});
                                     } else {
-                                        //-START--get access token---------
+//-START--get access token---------
                                         User.login({
                                             email: email_id,
                                             password: password,
@@ -147,7 +144,7 @@ module.exports = function (User) {
                                             if (err) {
                                                 callback(null, 0, 'Invalid login', {});
                                             } else {
-                                                //--start-- update user device_id and token
+//--start-- update user device_id and token
                                                 User.update({email: email_id}, {
                                                     device_id: device_id,
                                                     token: token,
@@ -166,10 +163,10 @@ module.exports = function (User) {
                                                         callback(null, 1, 'Success login', data);
                                                     }
                                                 });
-                                                //--end-- update user device_id and token
+//--end-- update user device_id and token
                                             }
                                         })
-                                        //-END----get access token---------
+//-END----get access token---------
                                     }
                                 }
                             }
@@ -181,7 +178,7 @@ module.exports = function (User) {
                             } else if (action_type != 'facebook' && action_type != 'google' && (typeof password == 'undefined' || password == '')) {
                                 callback(null, 0, 'Password required', {});
                             } else {
-                                //random password when regsiter by facebook and google
+//random password when regsiter by facebook and google
                                 if (action_type == 'facebook' || action_type == 'google') {
                                     password = UTIL.get_random_number();
                                 }
@@ -225,7 +222,7 @@ module.exports = function (User) {
                                             data['show_verification'] = 1;
                                         }
                                         User.app.models.email.newRegisteration({email: email_id, name: name, verification_code: verification_code}, function () {
-                                            //--send access token if register is via facebook or google
+//--send access token if register is via facebook or google
                                             if (action_type == 'facebook' || action_type == 'google') {
                                                 user.createAccessToken(LIFE_OF_ACCESS_TOKEN, function (err, accessToken) {
                                                     if (err) {
@@ -476,7 +473,15 @@ module.exports = function (User) {
                     } else {
                         var num = 0;
                         num = page * 1;
+
                         User.findById(access_token_userid, function (err, user) {
+                            var userData = JSON.stringify(user);
+                            var userData_Blocked = JSON.parse(userData);
+                            var not_show_ID = [];
+                            for (var i = 0; i < userData_Blocked.blocked_users.length; i++) {
+                                not_show_ID[i] = userData_Blocked.blocked_users[i];
+                            }
+                            not_show_ID[userData_Blocked.blocked_users.length] = access_token_userid;
                             if (err) {
                                 callback(null, 0, 'UnAuthorized 1', err);
                             } else {
@@ -485,10 +490,9 @@ module.exports = function (User) {
                                     geo_long_logged_user = user.geo_location[0];
                                     geo_lat_logged_user = user.geo_location[1];
                                 }
-
                                 var users_withn_distance = 1000 * 0.621371;// miles to km //1 km
                                 var where = {
-                                    id: {neq: access_token_userid},
+                                    id: {'nin': not_show_ID},
                                     verification_status: 1 * 1,
                                     friends: {'nin': [access_token_userid]},
                                     blocked_users: {'nin': [access_token_userid]},
@@ -502,7 +506,7 @@ module.exports = function (User) {
                                     where: where,
                                     limit: limit,
                                     skip: num * limit,
-                                    //order: 'last_seen DESC',
+//order: 'last_seen DESC',
                                 }, function (err, result) {
                                     if (err) {
                                         callback(null, 0, 'Try Again', err);
@@ -512,6 +516,7 @@ module.exports = function (User) {
                                             lodash.forEach(result, function (value) {
                                                 var userName = value.name;
                                                 var userId = value.id;
+                                                var social_id = value.social_id;
                                                 var pic = value.profile_image;
                                                 var lastSeen = value.last_seen;
                                                 var geo_city = geo_address = geo_state = geo_country = '';
@@ -570,8 +575,9 @@ module.exports = function (User) {
                                                     geo_address: geo_address,
                                                     geo_country: geo_country,
                                                     geo_state: geo_state,
-                                                    distance_from_logged_user: distance_from_logged_user
-                                                            //distance_from_logged_user : distance_from_logged_user + 'Km Away from you'
+                                                    distance_from_logged_user: distance_from_logged_user,
+                                                    social_id: social_id,
+//distance_from_logged_user : distance_from_logged_user + 'Km Away from you'
                                                 });
                                             });
                                             callback(null, 1, 'Users List', userInfo);
@@ -591,7 +597,7 @@ module.exports = function (User) {
             'list_users', {
                 description: 'Show the list of all Users',
                 accepts: [
-                    //{arg: 'req', type: 'object', 'http': {source: 'req'}},
+//{arg: 'req', type: 'object', 'http': {source: 'req'}},
                     {arg: 'accessToken', type: 'string'},
                     {arg: 'page', type: 'number'},
                     {arg: 'limit', type: 'number'},
@@ -675,7 +681,7 @@ module.exports = function (User) {
                         'id': new ObjectID(userId)
                     };
 
-                    //User.findById(userId, function (err, user) {
+//User.findById(userId, function (err, user) {
                     User.find({
                         "where": where1,
                         "include": [{
@@ -1074,8 +1080,7 @@ module.exports = function (User) {
 //********************************* END logged in user can update his room background image ( images will be comman for all rooms )**********************************
 
 
-
-    //********************************* START update geo location **********************************
+//********************************* START update geo location **********************************
     User.geo_location = function (accessToken, geo_lat, geo_long, currentTimestamp, callback) {
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
             if (err) {
@@ -1177,10 +1182,10 @@ module.exports = function (User) {
                 }
             }
     );
-    //********************************* END update geo location **********************************
+//********************************* END update geo location **********************************
 
 
-    //********************************* START unblock user **********************************
+//********************************* START unblock user **********************************
     User.unblock_user = function (accessToken, user_id, currentTimestamp, callback) {
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
             if (err) {
@@ -1229,10 +1234,211 @@ module.exports = function (User) {
                 }
             }
     );
-    //********************************* END update geo location **********************************
-
-
-
-
+//********************************* END update geo location **********************************
+//************************************* Guest Login start ****************************************
+    User.guest_login = function (action, action_type, social_id, platform, device_id, token, email_id, name, password, profile_image, gender, dob, currentTimestamp, callback) {
+        var LIFE_OF_ACCESS_TOKEN = 60 * 60 * 24 * 1000;
+        var email_id = faker.internet.email();
+        if (action && action_type && email_id) {
+            var name = faker.name.findName();
+            if (typeof name == 'undefined' || name == '') {
+                name = '';
+            } else {
+                name = name.toLowerCase();
+            }
+            var profile_image = faker.image.people();
+            if (typeof profile_image == 'undefined' || profile_image == '') {
+                profile_image = '';
+            }
+            email_id = email_id.toLowerCase();
+            where = {
+                email: email_id
+            };
+            User.find({where: where}, function (err, result) {
+                if (err) {
+                    callback(null, 0, err, {});
+                } else {
+                    if (action == 'guest_login') {
+                        var resultSize = lodash.size(result);
+                        if (resultSize > 0) {
+                            result = result[0];
+                            var r_verification_status = result.verification_status;
+                            if (action_type == 'manual_register') {
+                                callback(null, 0, 'Email id already exists.', {});
+                            } else if (action_type == 'manual_login' || action_type == 'facebook' || action_type == 'google') {
+                                if (action_type == 'facebook' || action_type == 'google') {
+                                    result.createAccessToken(LIFE_OF_ACCESS_TOKEN, function (err, accessToken) {
+                                        if (err) {
+                                            callback(null, 0, 'Invalid login', {});
+                                        } else {
+//--start-- update user device_id and token
+                                            User.update({email: email_id}, {
+                                                device_id: device_id,
+                                                token: token,
+                                                status: 'online'
+                                            }, function (err, result11) {
+                                                if (err) {
+                                                    callback(null, 0, err, {});
+                                                } else {
+                                                    var data = {
+                                                        user_id: accessToken.userId,
+                                                        access_token: accessToken.id,
+                                                        name: result.name,
+                                                        profile_image: result.profile_image,
+                                                        room_background_image: result.room_background_image
+                                                    };
+                                                    callback(null, 1, 'Success login', data);
+                                                }
+                                            });
+//--end-- update user device_id and token
+                                        }
+                                    });
+                                } else {
+                                    if (r_verification_status == 0) {
+                                        callback(null, 3, 'Please verify you account first', {});
+                                    } else {
+//-START--get access token---------
+                                        User.login({
+                                            email: email_id,
+                                            password: password,
+                                            ttl: LIFE_OF_ACCESS_TOKEN
+                                        }, function (err, accessToken) {
+                                            if (err) {
+                                                callback(null, 0, 'Invalid login', {});
+                                            } else {
+//--start-- update user device_id and token
+                                                User.update({email: email_id}, {
+                                                    device_id: device_id,
+                                                    token: token,
+                                                    status: 'online'
+                                                }, function (err, result11) {
+                                                    if (err) {
+                                                        callback(null, 0, err, {});
+                                                    } else {
+                                                        var data = {
+                                                            user_id: result.id,
+                                                            access_token: accessToken.id,
+                                                            name: result.name,
+                                                            profile_image: result.profile_image,
+                                                            room_background_image: result.room_background_image
+                                                        };
+                                                        callback(null, 1, 'Success login', data);
+                                                    }
+                                                });
+//--end-- update user device_id and token
+                                            }
+                                        })
+//-END----get access token---------
+                                    }
+                                }
+                            }
+                        } else {
+                            if (action_type == 'manual_login') {
+                                callback(null, 0, 'Email id not exists', {});
+                            } else if (name == '') {
+                                callback(null, 0, 'Name required', {});
+                            } else if (action_type != 'facebook' && action_type != 'google' && (typeof password == 'undefined' || password == '')) {
+                                callback(null, 0, 'Password required', {});
+                            } else {
+//random password when regsiter by facebook and google
+                                if (action_type == 'facebook' || action_type == 'google') {
+                                    password = UTIL.get_random_number();
+                                }
+                                password = password.toString();
+                                var verification_status = 0;
+                                var verification_code = UTIL.get_random_number();
+                                verification_code = verification_code.toString();
+                                if (action_type == 'facebook' || action_type == 'google') {
+                                    verification_status = 1;
+                                    verification_code = '';
+                                }
+                                User.create({
+                                    verification_status: verification_status,
+                                    verification_code: verification_code,
+                                    registration_type: action_type,
+                                    social_id: social_id,
+                                    platform: platform,
+                                    device_id: '',
+                                    token: token,
+                                    email: email_id,
+                                    name: name,
+                                    password: password,
+                                    last_seen: '',
+                                    registration_time: currentTimestamp,
+                                    registration_date: UTIL.currentDate(currentTimestamp),
+                                    registration_date_time: UTIL.currentDateTimeDay(currentTimestamp),
+                                    profile_image: profile_image,
+                                    profile_status: '',
+                                    room_background_image: '',
+                                    gender: gender,
+                                    dob: dob,
+                                }, function (err, user) {
+                                    if (err) {
+                                        callback(null, 0, err, {});
+                                    } else {
+                                        var user_id = user.id;
+                                        var data = {
+                                            user_id: user_id
+                                        };
+                                        if (action_type != 'facebook' && action_type != 'google') {
+                                            data['show_verification'] = 1;
+                                        }
+                                        User.app.models.email.newRegisteration({email: email_id, name: name, verification_code: verification_code}, function () {
+//--send access token if register is via facebook or google
+                                            if (action_type == 'facebook' || action_type == 'google') {
+                                                user.createAccessToken(LIFE_OF_ACCESS_TOKEN, function (err, accessToken) {
+                                                    if (err) {
+                                                        callback(null, 0, 'Invalid login', {});
+                                                    } else {
+                                                        var data = {
+                                                            user_id: accessToken.userId,
+                                                            access_token: accessToken.id,
+                                                            name: name,
+                                                            profile_image: profile_image,
+                                                            email: email_id
+                                                        };
+                                                        callback(null, 1, 'Success Registration', data);
+                                                    }
+                                                });
+                                            } else {
+                                                callback(null, 1, 'Successful Registration', data);
+                                            }
+                                        });
+                                    }
+                                })
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            callback(null, 0, 'Fill All fileds', {});
+        }
+    };
+    User.remoteMethod(
+            'guest_login', {
+                accepts: [
+                    {arg: 'action', type: 'string'},
+                    {arg: 'action_type', type: 'string'},
+                    {arg: 'social_id', type: 'string'},
+                    {arg: 'platform', type: 'string'},
+                    {arg: 'device_id', type: 'string'},
+                    {arg: 'token', type: 'string'},
+                    {arg: 'email', type: 'string'},
+                    {arg: 'name', type: 'string'},
+                    {arg: 'password', type: 'string'},
+                    {arg: 'profile_image', type: 'string'},
+                    {arg: 'gender', type: 'string'},
+                    {arg: 'dob', type: 'string'},
+                    {arg: 'currentTimestamp', type: 'number'}
+                ],
+                returns: [
+                    {arg: 'status', type: 'number'},
+                    {arg: 'message', type: 'string'},
+                    {arg: 'data', type: 'array'}
+                ]
+            }
+    );
+//************************************* Guest Login end ****************************************
 
 };
