@@ -12,6 +12,7 @@
     "compression": "^1.0.3",
     "cors": "^2.5.2",
     "date-and-time": "^0.2.3",
+    "faker": "^3.1.0",
     "lodash": "^4.15.0",
     "loopback": "^2.22.0",
     "loopback-boot": "^2.6.5",

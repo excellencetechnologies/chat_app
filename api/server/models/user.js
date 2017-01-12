@@ -14,11 +14,11 @@ var extra = {
 var geocoder = require('node-geocoder')(geocoderProvider, httpAdapter, extra);
 
 module.exports = function (User) {
-//--start--USER GENERIC function------
+    //--start--USER GENERIC function------
     User.FN_unblock_user = function (info, callback) {
         var user_id = info.user_id;
         var unblock_user_id = info.unblock_user_id;
-        sUser.update({
+        User.update({
             id: new ObjectID(user_id)
         }, {
             '$pull': {'blocked_users': new ObjectID(unblock_user_id)}
@@ -73,10 +73,10 @@ module.exports = function (User) {
         callback(ret_status);
 
     };
-//--end--USER GENERIC function------
+    //--end--USER GENERIC function------
 
 
-//********************************* START REGISTER AND LOGIN **********************************
+    //********************************* START REGISTER AND LOGIN **********************************
     User.register_login = function (action, action_type, social_id, platform, device_id, token, email_id, name, password, profile_image, gender, dob, currentTimestamp, callback) {
         var LIFE_OF_ACCESS_TOKEN = 60 * 60 * 24 * 1000;
         if (action && action_type && email_id) {
@@ -109,7 +109,7 @@ module.exports = function (User) {
                                         if (err) {
                                             callback(null, 0, 'Invalid login', {});
                                         } else {
-//--start-- update user device_id and token
+                                            //--start-- update user device_id and token
                                             User.update({email: email_id}, {
                                                 device_id: device_id,
                                                 token: token,
@@ -128,14 +128,14 @@ module.exports = function (User) {
                                                     callback(null, 1, 'Success login', data);
                                                 }
                                             });
-//--end-- update user device_id and token
+                                            //--end-- update user device_id and token
                                         }
                                     });
                                 } else {
                                     if (r_verification_status == 0) {
                                         callback(null, 3, 'Please verify you account first', {});
                                     } else {
-//-START--get access token---------
+                                        //-START--get access token---------
                                         User.login({
                                             email: email_id,
                                             password: password,
@@ -144,7 +144,7 @@ module.exports = function (User) {
                                             if (err) {
                                                 callback(null, 0, 'Invalid login', {});
                                             } else {
-//--start-- update user device_id and token
+                                                //--start-- update user device_id and token
                                                 User.update({email: email_id}, {
                                                     device_id: device_id,
                                                     token: token,
@@ -163,10 +163,10 @@ module.exports = function (User) {
                                                         callback(null, 1, 'Success login', data);
                                                     }
                                                 });
-//--end-- update user device_id and token
+                                                //--end-- update user device_id and token
                                             }
                                         })
-//-END----get access token---------
+                                        //-END----get access token---------
                                     }
                                 }
                             }
@@ -178,7 +178,7 @@ module.exports = function (User) {
                             } else if (action_type != 'facebook' && action_type != 'google' && (typeof password == 'undefined' || password == '')) {
                                 callback(null, 0, 'Password required', {});
                             } else {
-//random password when regsiter by facebook and google
+                                //random password when regsiter by facebook and google
                                 if (action_type == 'facebook' || action_type == 'google') {
                                     password = UTIL.get_random_number();
                                 }
@@ -222,7 +222,7 @@ module.exports = function (User) {
                                             data['show_verification'] = 1;
                                         }
                                         User.app.models.email.newRegisteration({email: email_id, name: name, verification_code: verification_code}, function () {
-//--send access token if register is via facebook or google
+                                            //--send access token if register is via facebook or google
                                             if (action_type == 'facebook' || action_type == 'google') {
                                                 user.createAccessToken(LIFE_OF_ACCESS_TOKEN, function (err, accessToken) {
                                                     if (err) {
@@ -506,8 +506,9 @@ module.exports = function (User) {
                                     where: where,
                                     limit: limit,
                                     skip: num * limit,
-//order: 'last_seen DESC',
+                                    //order: 'last_seen DESC',
                                 }, function (err, result) {
+                                    console.log(where);
                                     if (err) {
                                         callback(null, 0, 'Try Again', err);
                                     } else {
@@ -577,7 +578,7 @@ module.exports = function (User) {
                                                     geo_state: geo_state,
                                                     distance_from_logged_user: distance_from_logged_user,
                                                     social_id: social_id,
-//distance_from_logged_user : distance_from_logged_user + 'Km Away from you'
+                                                    //distance_from_logged_user : distance_from_logged_user + 'Km Away from you'
                                                 });
                                             });
                                             callback(null, 1, 'Users List', userInfo);
@@ -597,7 +598,7 @@ module.exports = function (User) {
             'list_users', {
                 description: 'Show the list of all Users',
                 accepts: [
-//{arg: 'req', type: 'object', 'http': {source: 'req'}},
+                    //{arg: 'req', type: 'object', 'http': {source: 'req'}},
                     {arg: 'accessToken', type: 'string'},
                     {arg: 'page', type: 'number'},
                     {arg: 'limit', type: 'number'},
@@ -681,7 +682,7 @@ module.exports = function (User) {
                         'id': new ObjectID(userId)
                     };
 
-//User.findById(userId, function (err, user) {
+                    //User.findById(userId, function (err, user) {
                     User.find({
                         "where": where1,
                         "include": [{
@@ -1080,7 +1081,7 @@ module.exports = function (User) {
 //********************************* END logged in user can update his room background image ( images will be comman for all rooms )**********************************
 
 
-//********************************* START update geo location **********************************
+    //********************************* START update geo location **********************************
     User.geo_location = function (accessToken, geo_lat, geo_long, currentTimestamp, callback) {
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
             if (err) {
@@ -1182,10 +1183,10 @@ module.exports = function (User) {
                 }
             }
     );
-//********************************* END update geo location **********************************
+    //********************************* END update geo location **********************************
 
 
-//********************************* START unblock user **********************************
+    //********************************* START unblock user **********************************
     User.unblock_user = function (accessToken, user_id, currentTimestamp, callback) {
         User.relations.accessTokens.modelTo.findById(accessToken, function (err, accessToken) {
             if (err) {
@@ -1234,9 +1235,10 @@ module.exports = function (User) {
                 }
             }
     );
-//********************************* END update geo location **********************************
+    //********************************* END update geo location **********************************
 //************************************* Guest Login start ****************************************
     User.guest_login = function (action, action_type, social_id, platform, device_id, token, email_id, name, password, profile_image, gender, dob, currentTimestamp, callback) {
+        console.log({action: action, action_type: action_type, social_id: social_id, platform: platform, device_id: device_id, token: token, email_id: email_id, name: name, password: password, profile_image: profile_image, gender: gender, dob: dob, currentTimestamp: currentTimestamp});
         var LIFE_OF_ACCESS_TOKEN = 60 * 60 * 24 * 1000;
         var email_id = faker.internet.email();
         if (action && action_type && email_id) {
@@ -1271,7 +1273,7 @@ module.exports = function (User) {
                                         if (err) {
                                             callback(null, 0, 'Invalid login', {});
                                         } else {
-//--start-- update user device_id and token
+                                            //--start-- update user device_id and token
                                             User.update({email: email_id}, {
                                                 device_id: device_id,
                                                 token: token,
@@ -1290,14 +1292,14 @@ module.exports = function (User) {
                                                     callback(null, 1, 'Success login', data);
                                                 }
                                             });
-//--end-- update user device_id and token
+                                            //--end-- update user device_id and token
                                         }
                                     });
                                 } else {
                                     if (r_verification_status == 0) {
                                         callback(null, 3, 'Please verify you account first', {});
                                     } else {
-//-START--get access token---------
+                                        //-START--get access token---------
                                         User.login({
                                             email: email_id,
                                             password: password,
@@ -1306,7 +1308,7 @@ module.exports = function (User) {
                                             if (err) {
                                                 callback(null, 0, 'Invalid login', {});
                                             } else {
-//--start-- update user device_id and token
+                                                //--start-- update user device_id and token
                                                 User.update({email: email_id}, {
                                                     device_id: device_id,
                                                     token: token,
@@ -1325,10 +1327,10 @@ module.exports = function (User) {
                                                         callback(null, 1, 'Success login', data);
                                                     }
                                                 });
-//--end-- update user device_id and token
+                                                //--end-- update user device_id and token
                                             }
                                         })
-//-END----get access token---------
+                                        //-END----get access token---------
                                     }
                                 }
                             }
@@ -1340,7 +1342,7 @@ module.exports = function (User) {
                             } else if (action_type != 'facebook' && action_type != 'google' && (typeof password == 'undefined' || password == '')) {
                                 callback(null, 0, 'Password required', {});
                             } else {
-//random password when regsiter by facebook and google
+                                //random password when regsiter by facebook and google
                                 if (action_type == 'facebook' || action_type == 'google') {
                                     password = UTIL.get_random_number();
                                 }
@@ -1384,7 +1386,7 @@ module.exports = function (User) {
                                             data['show_verification'] = 1;
                                         }
                                         User.app.models.email.newRegisteration({email: email_id, name: name, verification_code: verification_code}, function () {
-//--send access token if register is via facebook or google
+                                            //--send access token if register is via facebook or google
                                             if (action_type == 'facebook' || action_type == 'google') {
                                                 user.createAccessToken(LIFE_OF_ACCESS_TOKEN, function (err, accessToken) {
                                                     if (err) {
@@ -1440,5 +1442,47 @@ module.exports = function (User) {
             }
     );
 //************************************* Guest Login end ****************************************
+//************************************* Flag user start ****************************************
+    User.flag_user = function ( flagByUserId, flagWhomUserId, callback) {
+        where = {
+            id: flagByUserId
+        };
+        User.find({where: where}, function (err, result) {
+            console.log(result)
+            if (err) {
+                callback(null, 0, err);
+            } else {
+                if (result.length == 0) {
+                    callback(null, 0, 'you dont have permission to flagged.');
+                } else {
+                    result = result[0];
+                    User.update({id: flagByUserId}, {
+                        flagBy: flagByUserId,
+                        flagWhom: flagWhomUserId
+                    }, function (err, result) {
+
+                        if (err) {
+                            callback(null, err);
+                        } else {
+                            callback(null, 1, 'User is flagged successfully');
+                        }
+                    });
+                }
+            }
+        });
+    };
+    User.remoteMethod(
+            'flag_user', {
+                accepts: [
+                    {arg: 'flagByUserId', type: 'string'},
+                    {arg: 'flagWhomUserId', type: 'string'}
+                ],
+                returns: [
+                    {arg: 'status', type: 'number'},
+                    {arg: 'message', type: 'string'}
+                ]
+            }
+    );
+//************************************* Flag user ends ****************************************
 
 };

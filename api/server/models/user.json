@@ -28,6 +28,7 @@
         "currentTimestamp": {
             "type": "number"
         }
+
     },
     "validations": [],
     "relations": {
@@ -112,6 +113,11 @@
             "principalType": "ROLE",
             "principalId": "$everyone",
             "property": "guest_login"
+        }, {
+            "permission": "ALLOW",
+            "principalType": "ROLE",
+            "principalId": "$everyone",
+            "property": "flag_user"
         }],
     "methods": {}
 }
