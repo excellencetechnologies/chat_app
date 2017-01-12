@@ -58,7 +58,11 @@ module.exports = function (Pushmessage) {
                 } else {
                     note.alert = '\uD83D\uDCE7 \u2709 ' + message.params.notification.body;
                 }
-                note.payload = {"title": message.params.data.title, 'room_id': message.params.data.room_id, 'icon': message.params.data.icon, 'image': message.params.data.image, 'message': message.params.data.body};
+                if (message.params.data.title) {
+                    note.payload = {"title": message.params.data.title, 'room_id': message.params.data.room_id, 'icon': message.params.data.icon, 'image': message.params.data.image, 'message': message.params.data.body};
+                } else {
+                    note.payload = {"title": message.params.notification.title, 'room_id': message.params.data.room_id, 'icon': message.params.notification.icon, 'image': message.params.data.image, 'message': message.params.data.body};
+                }
                 note.topic = "com.excellence.chatt";
                 var options = {
                     gateway: 'gateway.push.apple.com', // this URL is different for Apple's Production Servers and changes when you go to production
@@ -68,7 +72,7 @@ module.exports = function (Pushmessage) {
                     passphrase: 'java@123', // ** NEED TO SET TO YOURS
                 }
                 var apnProvider = new apn.Provider(options);
-                apnProvider.send(note, deviceToken).then((result) = > {
+                apnProvider.send(note, deviceToken).then(function (result) {
                     callback(true, result);
                 });
             }

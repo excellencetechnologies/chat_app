@@ -56,19 +56,38 @@ module.exports = function (Email) {
     };
 
     Email.forgotPassword = function (data, callback) {
-        var subject = '';
-        var body = '';
-        subject = "Chatt App - New password";
-        body = "Your new password is :: " + data.new_password;
-        Email.send({
-            to: data.email,
-            from: CONFIG.sender,
-            subject: subject,
-            html: body
-        }, function (err, mail) {
-            console.log('email sent!');
+        // var subject = '';
+        // var body = '';
+        // subject = "Chatt App - New password";
+        // body = "Your new password is :: ";
+        // Email.send({
+        //     to: data.email,
+        //     from: CONFIG.sender,
+        //     subject: subject,
+        //     html: body
+        // }, function (err, mail) {
+        //     console.log(err)
+        //     console.log("---------------------");
+        //     console.log(mail)
+        //                 console.log("---------------------");
+        //     console.log('email sent!');
+        //     callback();
+        // });
+        var params = {
+            "message": {
+                "from_email":"noreply@excellencetechnologies.in",
+                "to":[{"email":"shekhar@excellencetechnologies.in"}],
+                "subject": "Sending a text email from the Mandrill API",
+                "text": "testing 123"
+            }
+        };
+        mandrill_client.messages.send(params, function(res) {
+            console.log(res);
             callback();
-        });
+        }, function(err) {
+            console.log(err);
+            callback();
+    });
     };
 
 };

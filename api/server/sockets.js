@@ -202,9 +202,9 @@ module.exports.listen = function (app) {
             callback(response);
         })
     }
-    //------------------------------------
-    //------------------------------------
-    //------------------------------------
+//------------------------------------
+//------------------------------------
+//------------------------------------
     io = socketio.listen(app);
     io.on('connection', function (socket) {
         console.log('----------------------------------------');
@@ -225,7 +225,7 @@ module.exports.listen = function (app) {
                 socket.emit('show_my_rooms', response);
             });
         });
-        //when room users view a message, update message_status to seen
+//when room users view a message, update message_status to seen
         socket.on('update_message_status', function (accessToken, room_id, message_id, status, currentTimestamp) {
             Room.update_message_status(accessToken, room_id, message_id, status, currentTimestamp, function (ignore_param, res_status, res_message, res_data) {
                 if (res_status == 1) {
@@ -233,9 +233,9 @@ module.exports.listen = function (app) {
                 }
             })
         });
-        //sockets events ( trying to create generic )
+//sockets events ( trying to create generic )
         socket.on('APP_SOCKET_EMIT', function (type, info) {
-        //whenever a room is open 'room_open' will be emit on mobile app.
+//whenever a room is open 'room_open' will be emit on mobile app.
             if (type == 'room_open') {
                 console.log('----------------------------------------');
                 var accessToken = info.accessToken;
@@ -278,13 +278,13 @@ module.exports.listen = function (app) {
                 var currentTimestamp = info.currentTimestamp;
                 FN_room_message(msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, function (response) {
                     if (response.status == 1) {
-                        // will be available on other users of room
+// will be available on other users of room
                         var d1 = {
                             type: 'alert',
                             data: response.data.broadcast_data
                         }
                         socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'new_room_message', d1);
-                        // will have status of message sent by user
+// will have status of message sent by user
                         var d2 = {
                             type: 'alert',
                             data: response.data.user_data
@@ -295,7 +295,7 @@ module.exports.listen = function (app) {
                             unread_messages: 1,
                             currentTimestamp: currentTimestamp
                         }
-                        //update_room_unread_notification -- this will have a room_id, with that room_id show_room_unread_notification will be call
+//update_room_unread_notification -- this will have a room_id, with that room_id show_room_unread_notification will be call
                         socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'update_room_unread_notification', d11);
                     }
                 });
@@ -311,7 +311,7 @@ module.exports.listen = function (app) {
                             data: response
                         }
                         socket.emit('RESPONSE_APP_SOCKET_EMIT', 'join_public_room', d); // to the admin who removed the message
-                        //----------------------------------------------------
+//----------------------------------------------------
                         var join_user_info = response.data.join_user_info;
                         var joins_user_info_name = join_user_info.name;
                         var room_name = '';
@@ -324,7 +324,7 @@ module.exports.listen = function (app) {
                         FN_room_message(msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, function (response) {
                             if (response.status == 1) {
                                 console.log(message_type + ' :: ' + message);
-                        // will be available on other users of room
+// will be available on other users of room
                                 var d1 = {
                                     type: 'alert',
                                     data: response.data.broadcast_data
@@ -347,7 +347,7 @@ module.exports.listen = function (app) {
                             data: response
                         }
                         socket.emit('RESPONSE_APP_SOCKET_EMIT', 'admin_add_user_to_public_room', d); // to the admin who removed the message
-                        //----------------------------------------------------
+//----------------------------------------------------
                         var join_user_info = response.data.join_user_info;
                         var joins_user_info_name = join_user_info.name;
                         var room_name = '';
@@ -360,7 +360,7 @@ module.exports.listen = function (app) {
                         FN_room_message(msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, function (response) {
                             if (response.status == 1) {
                                 console.log(message_type + ' :: ' + message);
-                        // will be available on other users of room
+// will be available on other users of room
                                 var d1 = {
                                     type: 'alert',
                                     data: response.data.broadcast_data
@@ -380,7 +380,7 @@ module.exports.listen = function (app) {
                         data: response
                     }
                     socket.emit('RESPONSE_APP_SOCKET_EMIT', 'leave_public_group', d);
-                    //-start--send a room message, message_type=room_alert_message that user left this group---------
+//-start--send a room message, message_type=room_alert_message that user left this group---------
                     if (response.status == 1) {
                         var left_user_info = response.data.left_user_info;
                         var left_user_info_name = left_user_info.name;
@@ -390,7 +390,7 @@ module.exports.listen = function (app) {
                         FN_room_message(msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, function (response) {
                             if (response.status == 1) {
                                 console.log(message_type + ' :: ' + message);
-                    // will be available on other users of room
+// will be available on other users of room
                                 var d1 = {
                                     type: 'alert',
                                     data: response.data.broadcast_data
@@ -398,20 +398,20 @@ module.exports.listen = function (app) {
                                 socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'new_room_message', d1);
                             }
                         });
-                    //--to emit from client side so that scoket can be removed  from room
+//--to emit from client side so that scoket can be removed  from room
                         var remove_socket_from_room_data = {
                             user_id: left_user_info.user_id,
                             room_id: room_id
                         };
                         socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'remove_socket_from_room', remove_socket_from_room_data);
-                    //--remove token
+//--remove token
                         if (typeof io.sockets.adapter.rooms[room_id] != 'undefined') {
                             if (typeof io.sockets.adapter.rooms[room_id].sockets != 'undefined') {
                                 socket.leave(room_id);
                             }
                         }
                     }
-                    //-start--send a room message, message_type=room_alert_message that user left this group---------
+//-start--send a room message, message_type=room_alert_message that user left this group---------
                 });
             } else if (type == 'remove_public_room_member') {
                 var accessToken = info.accessToken;
@@ -424,7 +424,7 @@ module.exports.listen = function (app) {
                         data: response
                     }
                     socket.emit('RESPONSE_APP_SOCKET_EMIT', 'remove_public_room_member', d); // to the admin who removed the message
-                    //-start--send a room message, message_type=room_alert_message that admin remove the user from group---------
+//-start--send a room message, message_type=room_alert_message that admin remove the user from group---------
                     if (response.status == 1) {
                         var left_user_info = response.data.left_user_info;
                         var left_user_info_name = left_user_info.name;
@@ -434,7 +434,7 @@ module.exports.listen = function (app) {
                         FN_room_message(msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, function (response) {
                             if (response.status == 1) {
                                 console.log(message_type + ' :: ' + message);
-                            // will be available on other users of room
+// will be available on other users of room
                                 var d1 = {
                                     type: 'alert',
                                     data: response.data.broadcast_data
@@ -442,7 +442,7 @@ module.exports.listen = function (app) {
                                 socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'new_room_message', d1);
                             }
                         });
-                    //--to emit from client side so that scoket can be removed  from room
+//--to emit from client side so that scoket can be removed  from room
                         var remove_socket_from_room_data = {
                             user_id: left_user_info.user_id,
                             room_id: room_id
@@ -451,7 +451,7 @@ module.exports.listen = function (app) {
                         console.log(remove_socket_from_room_data);
                         socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'remove_socket_from_room', remove_socket_from_room_data);
                     }
-                    //-start--send a room message, message_type=room_alert_message that admin remove the user from group---------
+//-start--send a room message, message_type=room_alert_message that admin remove the user from group---------
                 });
             } else if (type == 'remove_socket_from_room') {
                 var user_id = info.user_id;
@@ -492,14 +492,14 @@ module.exports.listen = function (app) {
                             data: response
                         }
                         socket.emit('RESPONSE_APP_SOCKET_EMIT', 'delete_public_room', d);
-                        //-----------------------------------
+//-----------------------------------
                         var msg_local_id = '';
                         var message_type = 'room_alert_message';
                         var message = 'Room deleted by admin';
                         FN_room_message(msg_local_id, accessToken, room_id, message_type, message, currentTimestamp, function (response) {
                             if (response.status == 1) {
                                 console.log(message_type + ' :: ' + message);
-                        // will be available on other users of room
+// will be available on other users of room
                                 var d1 = {
                                     type: 'alert',
                                     data: response.data.broadcast_data
@@ -507,12 +507,12 @@ module.exports.listen = function (app) {
                                 socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'new_room_message', d1);
                             }
                         });
-                        //--to emit from client side so that scoket can be removed  from room
+//--to emit from client side so that scoket can be removed  from room
                         var remove_room_data = {
                             room_id: room_id
                         };
                         socket.to(room_id).emit('RESPONSE_APP_SOCKET_EMIT', 'remove_socket_from_room', remove_room_data);
-                        //--remove token
+//--remove token
                         if (typeof io.sockets.adapter.rooms[room_id] != 'undefined') {
                             if (typeof io.sockets.adapter.rooms[room_id].sockets != 'undefined') {
                                 socket.leave(room_id);
